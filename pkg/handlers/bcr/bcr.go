@@ -94,6 +94,33 @@ func (s *BCR) Handle(e event.Event) {
 		}
 		logrus.Printf("Secret Created in namespace %s", e.Name)
 
-		// TODO: Handle bcr secret deleted case
+	case "Secret":
+		if e.Reason != "Deleted" {
+			return
+		}
+		if secretObj, ok := e.Obj.(*corev1.Secret); ok {
+			_, bcr_secret := secretObj.Data[".dockerconfigjson"]
+			if bcr_secret {
+				secretBody := &corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      s.Name,
+						Namespace: e.Namespace,
+					},
+					Type: corev1.SecretTypeDockerConfigJson,
+					Data: map[string][]byte{
+						corev1.DockerConfigJsonKey: []byte(fmt.Sprintf(`{"auths":{"%s":{"username":"%s","password":"%s","email":"none"}}}`, s.Server, s.Username, s.Password)),
+					},
+				}
+				_, err := kubeClient.CoreV1().Secrets(e.Namespace).Create(context.TODO(), secretBody, metav1.CreateOptions{})
+				if err != nil {
+					logrus.Printf("Recreate secret error: %s", err.Error())
+				}
+				logrus.Printf("Secret Recreated in namespace %s", e.Name)
+			} else {
+				logrus.Printf("Not a BCR integrated secret, skip processing")
+			}
+		} else {
+			logrus.Printf("Not a Secret Object, skip processing")
+		}
 	}
 }
