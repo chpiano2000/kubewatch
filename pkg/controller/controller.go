@@ -45,7 +45,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 )
@@ -90,11 +89,7 @@ func objName(obj interface{}) string {
 func Start(conf *config.Config, eventHandler handlers.Handler) {
 	var kubeClient kubernetes.Interface
 
-	if _, err := rest.InClusterConfig(); err != nil {
-		kubeClient = utils.GetClientOutOfCluster()
-	} else {
-		kubeClient = utils.GetClient()
-	}
+	kubeClient = utils.GetClientOutOfCluster()
 
 	// User Configured Events
 	if conf.Resource.CoreEvent {

@@ -47,6 +47,7 @@ type Handler struct {
 	MSTeams      MSTeams      `json:"msteams"`
 	SMTP         SMTP         `json:"smtp"`
 	Lark         Lark         `json:"lark"`
+	Bcr          BCR          `json:"bcr"`
 }
 
 // Resource contains resource configuration
@@ -187,6 +188,19 @@ type SMTPAuth struct {
 	Identity string `json:"identity" yaml:"identity,omitempty"`
 	// Secret for CRAM-MD5 auth mechanism
 	Secret string `json:"secret" yaml:"secret,omitempty"`
+}
+
+type BCR struct {
+	// Secret for CRAM-MD5 auth mechanism
+	Name          string `json:"name" yaml:"name"`
+	Username      string `json:"username" yaml:"username"`
+	Password      string `json:"password" yaml:"password"`
+	Server        string `json:"server" yaml:"server"`
+	Host          string `json:"host" yaml:"host"`
+	AppCredId     string `json:"appCredId" yaml:"appCredId"`
+	AppCredSecret string `json:"appCredSecret" yaml:"appCredSecret"`
+	Region        string `json:"region" yaml:"region"`
+	BasicAuth     string `json:"basicAuth" yaml:"basicAuth,omitempty"`
 }
 
 // New creates new config object

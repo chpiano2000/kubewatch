@@ -3,6 +3,7 @@ module github.com/bitnami-labs/kubewatch
 go 1.14
 
 require (
+	github.com/bizflycloud/gobizfly v1.0.23
 	github.com/fatih/structtag v1.2.0
 	github.com/google/go-querystring v0.0.0-20170111101155-53e6ce116135 // indirect
 	github.com/hashicorp/hcl v0.0.0-20171017181929-23c074d0eceb // indirect
@@ -19,7 +20,6 @@ require (
 	github.com/spf13/jwalterweatherman v0.0.0-20180109140146-7c0cea34c8ec // indirect
 	github.com/spf13/viper v1.0.0
 	github.com/tbruyelle/hipchat-go v0.0.0-20160921153256-749fb9e14beb
-	golang.org/x/crypto v0.8.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1

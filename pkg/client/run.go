@@ -20,6 +20,7 @@ import (
 	"github.com/bitnami-labs/kubewatch/config"
 	"github.com/bitnami-labs/kubewatch/pkg/controller"
 	"github.com/bitnami-labs/kubewatch/pkg/handlers"
+	"github.com/bitnami-labs/kubewatch/pkg/handlers/bcr"
 	"github.com/bitnami-labs/kubewatch/pkg/handlers/cloudevent"
 	"github.com/bitnami-labs/kubewatch/pkg/handlers/flock"
 	"github.com/bitnami-labs/kubewatch/pkg/handlers/hipchat"
@@ -65,6 +66,8 @@ func ParseEventHandler(conf *config.Config) handlers.Handler {
 		eventHandler = new(smtp.SMTP)
 	case len(conf.Handler.Lark.WebhookURL) > 0:
 		eventHandler = new(lark.Webhook)
+	case len(conf.Handler.Bcr.Server) > 0:
+		eventHandler = new(bcr.BCR)
 	default:
 		eventHandler = new(handlers.Default)
 	}
