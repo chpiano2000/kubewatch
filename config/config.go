@@ -193,9 +193,7 @@ type SMTPAuth struct {
 type BCR struct {
 	// Secret for CRAM-MD5 auth mechanism
 	Name          string `json:"name" yaml:"name"`
-	Username      string `json:"username" yaml:"username"`
-	Password      string `json:"password" yaml:"password"`
-	Server        string `json:"server" yaml:"server"`
+	DockerConfig  string `json:"dockerconfig" yaml:"dockerconfig"`
 	Host          string `json:"host" yaml:"host"`
 	AppCredId     string `json:"appCredId" yaml:"appCredId"`
 	AppCredSecret string `json:"appCredSecret" yaml:"appCredSecret"`

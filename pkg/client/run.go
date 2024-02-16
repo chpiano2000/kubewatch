@@ -66,7 +66,7 @@ func ParseEventHandler(conf *config.Config) handlers.Handler {
 		eventHandler = new(smtp.SMTP)
 	case len(conf.Handler.Lark.WebhookURL) > 0:
 		eventHandler = new(lark.Webhook)
-	case len(conf.Handler.Bcr.Server) > 0:
+	case len(conf.Handler.Bcr.Name) > 0:
 		eventHandler = new(bcr.BCR)
 	default:
 		eventHandler = new(handlers.Default)

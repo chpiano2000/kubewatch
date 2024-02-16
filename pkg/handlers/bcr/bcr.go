@@ -18,7 +18,7 @@ package bcr
 
 import (
 	"context"
-	"fmt"
+	"encoding/base64"
 	"github.com/bizflycloud/gobizfly"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
@@ -31,19 +31,15 @@ import (
 )
 
 type BCR struct {
-	Name     string
-	Username string
-	Password string
-	Server   string
-	Gobizfly *gobizfly.Client
+	Name         string
+	DockerConfig string
+	Gobizfly     *gobizfly.Client
 }
 
 // Init prepares slack configuration
 func (s *BCR) Init(c *config.Config) error {
 	name := c.Handler.Bcr.Name
-	username := c.Handler.Bcr.Username
-	password := c.Handler.Bcr.Password
-	server := c.Handler.Bcr.Server
+	dockerconfig := c.Handler.Bcr.DockerConfig
 	auth := utils.BizflyAuth{
 		Host:          c.Handler.Bcr.Host,
 		AppCredId:     c.Handler.Bcr.AppCredId,
@@ -54,9 +50,7 @@ func (s *BCR) Init(c *config.Config) error {
 	bizflyClient, _ := utils.GetApiClient(&auth)
 
 	s.Name = name
-	s.Username = username
-	s.Password = password
-	s.Server = server
+	s.DockerConfig = dockerconfig
 	s.Gobizfly = bizflyClient
 	return nil
 }
@@ -71,6 +65,7 @@ func (s *BCR) Handle(e event.Event) {
 	var kubeClient kubernetes.Interface
 
 	kubeClient = utils.GetClientOutOfCluster()
+	dockerconfigSecret, _ := base64.StdEncoding.DecodeString(s.DockerConfig)
 
 	switch e.Kind {
 	case "Namespace":
@@ -85,7 +80,7 @@ func (s *BCR) Handle(e event.Event) {
 			},
 			Type: corev1.SecretTypeDockerConfigJson,
 			Data: map[string][]byte{
-				corev1.DockerConfigJsonKey: []byte(fmt.Sprintf(`{"auths":{"%s":{"username":"%s","password":"%s","email":"none"}}}`, s.Server, s.Username, s.Password)),
+				corev1.DockerConfigJsonKey: []byte(dockerconfigSecret),
 			},
 		}
 		_, err := kubeClient.CoreV1().Secrets(e.Name).Create(context.TODO(), secretBody, metav1.CreateOptions{})
@@ -99,8 +94,8 @@ func (s *BCR) Handle(e event.Event) {
 			return
 		}
 		if secretObj, ok := e.Obj.(*corev1.Secret); ok {
-			_, bcr_secret := secretObj.Data[".dockerconfigjson"]
-			if bcr_secret {
+			_, bcrSecret := secretObj.Data[".dockerconfigjson"]
+			if bcrSecret {
 				secretBody := &corev1.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      s.Name,
@@ -108,7 +103,7 @@ func (s *BCR) Handle(e event.Event) {
 					},
 					Type: corev1.SecretTypeDockerConfigJson,
 					Data: map[string][]byte{
-						corev1.DockerConfigJsonKey: []byte(fmt.Sprintf(`{"auths":{"%s":{"username":"%s","password":"%s","email":"none"}}}`, s.Server, s.Username, s.Password)),
+						corev1.DockerConfigJsonKey: []byte(dockerconfigSecret),
 					},
 				}
 				_, err := kubeClient.CoreV1().Secrets(e.Namespace).Create(context.TODO(), secretBody, metav1.CreateOptions{})
